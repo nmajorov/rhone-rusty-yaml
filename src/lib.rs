@@ -12,11 +12,21 @@ pub mod rhone_yaml {
         pub language: String,
         pub interpreter_version: String,
         pub contributors: Vec<Contributor>,
+        pub build_trigger: String,
+        pub scripts: Scripts,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct Contributor {
         pub name: String,
         pub email: String,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct Scripts {
+        pub preBuild: String,
+        pub build: String,
+        pub postBuild: String,
+        pub preSCM: String,
     }
 }
