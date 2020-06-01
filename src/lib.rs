@@ -10,12 +10,16 @@ pub struct Project {
     #[serde(rename = "apiVersion")]
     pub api_version: String,
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     pub version: String,
     pub language: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub interpreter_version: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub contributors: Option<Vec<Contributor>>,
     pub build_trigger: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub scripts: Option<Scripts>,
 }
 
