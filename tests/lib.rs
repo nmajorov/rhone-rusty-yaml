@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
 
-    use rust_yaml::rhone_yaml::{Contributor, Project, Scripts};
+    use rhone_rust_yaml::self::{Contributor, Project, Scripts};
     use serde_yaml;
 
     #[test]
@@ -33,4 +33,6 @@ mod tests {
         println!("yaml: \n {}", s);
         Ok(())
     }
+
+    //fn parse_file() ->
 }
