@@ -10,16 +10,13 @@ pub struct Project {
     #[serde(rename = "apiVersion")]
     pub api_version: String,
     pub name: String,
-    #[serde(skip_deserializing)]
-    pub description: String,
+    pub description: Option<String>,
     pub version: String,
     pub language: String,
-    #[serde(skip_deserializing)]
-    pub interpreter_version: String,
-    #[serde(skip_deserializing)]
-    pub contributors: Vec<Contributor>,
+    pub interpreter_version: Option<String>,
+    pub contributors: Option<Vec<Contributor>>,
     pub build_trigger: String,
-    pub scripts: Scripts,
+    pub scripts: Option<Scripts>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,12 +26,16 @@ pub struct Contributor {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[derive(Default)]
 pub struct Scripts {
     #[serde(rename = "preBuild")]
     pub pre_build: String,
+  
     pub build: String,
+  
     #[serde(rename = "postBuild")]
     pub post_build: String,
+    
     #[serde(rename = "preSCM")]
     pub pre_scm: String,
 }
@@ -87,12 +88,12 @@ use super::{Contributor, Project, Scripts};
         let project = Project {
             api_version: String::from("build.rhone.io/v1"),
             name: String::from("rust-yaml"),
-            description: String::from("simple rest project"),
+            description: Some(String::from("simple rest project")),
             language: String::from("rust"),
             version: String::from("1.0.1"),
-            interpreter_version: String::from("1.39.0"),
-            contributors: vec![contr1],
-            scripts: script,
+            interpreter_version: Some(String::from("1.39.0")),
+            contributors: Some(vec![contr1]),
+            scripts: Some(script),
             build_trigger: String::from("every 3 hours"),
         };
 
