@@ -4,7 +4,7 @@ import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.command.sdist import sdist as SdistCommand
-
+#import rhone_rusty_yaml
 try:
     from setuptools_rust import RustExtension
 except ImportError:
@@ -71,7 +71,7 @@ tests_require = install_requires + ["pytest", "pytest-benchmark"]
 
 setup(
     name="rhone-rusty-yaml",
-    version="0.1.0",
+    version="1.0.1",
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Development Status :: 3 - Alpha",

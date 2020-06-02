@@ -2,10 +2,10 @@
 import os
 
 import pytest
-import rhone_rusty_yaml
 import logging
 import yaml
 import json
+import rhone_rusty_yaml
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,11 +33,42 @@ build_trigger: none
     os.remove(path)
 
 
-def test_parse_yaml_with_rust(benchmark):
-    LOGGER.info("parse yaml: {}".format(path))
-    json = benchmark(rhone_rusty_yaml.get_json_from_yaml, path)
+def test_parse_yaml_file_with_rust(benchmark):
+    LOGGER.info("parse yaml file: {}".format(path))
+    json = benchmark(rhone_rusty_yaml.get_json_from_yaml_file, path)
     LOGGER.info("get json: {}".format(json))
     assert json is not None
+
+
+def test_parse_yaml_string_with_rust(benchmark):
+    yaml = """
+---
+name: express-train
+apiVersion: build.rhone.io/v1
+description: some framework
+version: 2.1.3
+language: python
+interpreter-version: '3.4'
+contributors:
+- name: Nikolaj Majorov
+  email: nikolaj@majorov.biz
+- name: Oleg Mayer
+  email: oleg@majorov.biz
+repository:
+  brache: develop
+build_trigger:
+  every: 5 minutes
+notify:
+  success: 'false'
+  failure: 'true'
+"""
+
+
+    LOGGER.info("parse yaml string: {}".format(yaml))
+    json = benchmark(rhone_rusty_yaml.get_json_from_yaml_str, yaml)
+    LOGGER.info("get json: {}".format(json))
+    assert json is not None
+
 
 def test_parst_yaml_pure_python(benchmark):
  
