@@ -59,8 +59,8 @@ repository:
 build_trigger:
   every: 5 minutes
 notify:
-  success: 'false'
-  failure: 'true'
+  success: false
+  failure: true
 """
 
 
@@ -71,9 +71,9 @@ notify:
 
 
 def test_parst_yaml_pure_python(benchmark):
- 
+
     LOGGER.info("pure python parse yaml: {}".format(path))
-    
+
     @benchmark
     def result():
         with open(path) as f:
@@ -82,4 +82,3 @@ def test_parst_yaml_pure_python(benchmark):
 
     LOGGER.info("get json: {}".format(result))
     assert result is not None
-    

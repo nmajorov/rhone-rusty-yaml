@@ -22,6 +22,16 @@ pub struct Project {
     pub build_trigger: BuildTrigger,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub scripts: Option<Vec<Scripts>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub notify: Option<Notify>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Notify {
+    #[serde(rename = "success")]
+    pub success: bool,
+    #[serde(rename = "failure")]
+    pub failure: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -88,7 +98,7 @@ fn rhone_rusty_yaml(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 #[cfg(test)]
 mod tests {
 
-    use super::{BuildTrigger, Contributor, Project, Scripts};
+    use super::{BuildTrigger, Contributor, Notify, Project, Scripts};
 
     #[test]
     fn it_works() -> Result<(), serde_json::Error> {
@@ -125,6 +135,10 @@ mod tests {
             contributors: Some(vec![contr1]),
             scripts: Some(vec![script1, script2]),
             build_trigger: trigger,
+            notify: Some(Notify {
+                failure: true,
+                success: true,
+            }),
         };
 
         let yaml = serde_yaml::to_string(&project);
@@ -159,8 +173,8 @@ repository:
 build_trigger:
     every: 5 minutes
 notify:
-    success: 'false'
-    failure: 'true'
+    success: false
+    failure: true
 "#;
 
         println!("yaml: \n {}", data);
@@ -209,8 +223,8 @@ repository:
 build_trigger:
   every: 5 minutes
 notify:
-  success: 'false'
-  failure: 'true'
+  success: false
+  failure: true
 "#;
 
         println!("yaml: \n {}", data);
