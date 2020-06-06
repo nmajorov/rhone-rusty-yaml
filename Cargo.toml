@@ -8,7 +8,7 @@ edition = "2018"
 
 [lib]
 name = "rhone_rusty_yaml"
-crate-type = ["cdylib"] # bug for integration tests 
+crate-type = ["cdylib"] # bug for integration tests
 #crate-type = ["rlib"]
 
 [dependencies]

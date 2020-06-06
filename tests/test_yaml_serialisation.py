@@ -35,9 +35,9 @@ build_trigger: none
 
 def test_parse_yaml_file_with_rust(benchmark):
     LOGGER.info("parse yaml file: {}".format(path))
-    json = benchmark(rhone_rusty_yaml.get_json_from_yaml_file, path)
-    LOGGER.info("get json: {}".format(json))
-    assert json is not None
+    jsonStr = benchmark(rhone_rusty_yaml.get_json_from_yaml_file, path)
+    LOGGER.info("get json: {}".format(jsonStr))
+    assert jsonStr is not None
 
 
 def test_parse_yaml_string_with_rust(benchmark):
@@ -61,13 +61,26 @@ build_trigger:
 notify:
   success: false
   failure: true
+scripts:
+  - preBuild: python --version
+  - build: build.sh
+  - postBuild: stop.sh
+  - preSCM: hg version
 """
 
 
     LOGGER.info("parse yaml string: {}".format(yaml))
-    json = benchmark(rhone_rusty_yaml.get_json_from_yaml_str, yaml)
-    LOGGER.info("get json: {}".format(json))
-    assert json is not None
+    strJson = benchmark(rhone_rusty_yaml.get_json_from_yaml_str, yaml)
+    jsonStr = json.loads(strJson)
+    LOGGER.info("dump json: {}".format(json.dumps(jsonStr, sort_keys=True, indent=4)))
+    LOGGER.info("interpreter-version: {}".format(jsonStr["interpreter-version"]))
+    assert jsonStr is not None
+    assert (jsonStr['interpreter-version'] ==  "3.4")
+    assert (jsonStr['name'] == "express-train")
+    assert (jsonStr['scripts'][0]['preBuild'] == "python --version")
+
+
+
 
 
 def test_parst_yaml_pure_python(benchmark):
@@ -81,4 +94,5 @@ def test_parst_yaml_pure_python(benchmark):
         return jsonStr
 
     LOGGER.info("get json: {}".format(result))
+    
     assert result is not None

@@ -14,9 +14,11 @@ pub struct Project {
     pub description: Option<String>,
     pub version: String,
     pub language: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(rename = "interpreter-version")]
+
+    #[serde(rename = "interpreter-version",
+            skip_serializing_if ="Option::is_none")]
     pub interpreter_version: Option<String>,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contributors: Option<Vec<Contributor>>,
     pub build_trigger: BuildTrigger,
@@ -162,7 +164,7 @@ apiVersion: build.rhone.io/v1
 description: some framework
 version: 2.1.3
 language: python
-interpreter-version: '3.4'
+interpreter-version: '3.8.8'
 contributors:
 - name: Nikolaj Majorov
   email: nikolaj@majorov.biz
@@ -180,6 +182,7 @@ notify:
         println!("yaml: \n {}", data);
         let project: Project = serde_yaml::from_str(&data)?;
         assert_eq!(project.name, "express-train");
+        assert_eq!(project.interpreter_version, Some(String::from("3.8.8")));
 
         Ok(())
     }

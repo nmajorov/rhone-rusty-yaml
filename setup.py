@@ -4,6 +4,22 @@ import sys
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from setuptools.command.sdist import sdist as SdistCommand
+from setuptools.dist import Distribution
+
+
+def wheel_name(**kwargs):
+    # create a fake distribution from arguments
+    dist = Distribution(attrs=kwargs)
+    # finalize bdist_wheel command
+    bdist_wheel_cmd = dist.get_command_obj('bdist_wheel')
+    bdist_wheel_cmd.ensure_finalized()
+    # assemble wheel file name
+    distname = bdist_wheel_cmd.wheel_dist_name
+    print("*** " + distname)
+    tag = '-'.join(bdist_wheel_cmd.get_tag())
+    return f'{distname}-{tag}.whl'
+
+
 #import rhone_rusty_yaml
 try:
     from setuptools_rust import RustExtension
@@ -69,17 +85,35 @@ setup_requires = ["setuptools-rust>=0.10.1", "wheel"]
 install_requires = []
 tests_require = install_requires + ["pytest", "pytest-benchmark"]
 
+# Utility function to read the README file.
+# Used for the long_description.  It's nice, because now 1) we have a top level
+# README file and 2) it's easier to type in the README file than to put a raw
+# string in below ...
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 setup(
     name="rhone-rusty-yaml",
     version="1.0.1",
+    author= "Nikolaj Majorov",
+    author_email = "nikolaj@majorov.biz",
+    description = ("parse rhone yaml files with rust in python"),
+    license = "BSD",
+    long_description=read('ReadMe.md'),
+    url="https://github.com/nmajorov/rhone-rusty-yaml",
+     project_urls={
+        "Bug Tracker": "https://github.com/nmajorov/rhone-rusty-yaml",
+        "Documentation": "https://github.com/nmajorov/rhone-rusty-yaml",
+        "Source Code": "https://github.com/nmajorov/rhone-rusty-yaml",
+    },
     classifiers=[
-        "License :: OSI Approved :: MIT License",
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Programming Language :: Python",
         "Programming Language :: Rust",
         "Operating System :: POSIX",
         "Operating System :: MacOS :: MacOS X",
+        "License :: OSI Approved :: BSD License"
     ],
     packages=["rhone_rusty_yaml"],
     rust_extensions=[RustExtension("rhone_rusty_yaml.rhone_rusty_yaml", "Cargo.toml", debug=True)],
@@ -88,5 +122,6 @@ setup(
     setup_requires=setup_requires,
     include_package_data=True,
     zip_safe=False,
+    python_requires='>=3.7',
     cmdclass={"test": PyTest, "sdist": CargoModifiedSdist},
 )
