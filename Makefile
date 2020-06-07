@@ -13,11 +13,9 @@ help: ## This help message
 build:  dev-packages ## Builds Rust code and Python modules
 	python setup.py bdist_wheel
 
-#.PHONY: build-release
-#build-release: build ## Build  module in release mode
-#	cd ./dist && \
-#	ls -l && \
-#	cp -v rhone_rusty_yaml-$(version)-*-linux_x86_64.whl rhone_rusty_yaml-1.0.1-py3-none-linux_x86_64.whl
+.PHONY: build-release
+build-release: build ## Build  module in release mode
+	maturin build -o dist
 
 #.PHONY: nightly
 #nightly: ## Set rust compiler to nightly version
