@@ -1,6 +1,6 @@
 [package]
 name = "rhone-rusty-yaml"
-version = "0.0.1"
+version = "1.0.1"
 authors = ["Nikolaj Majorov <nikolaj@majorov.biz>"]
 edition = "2018"
 
