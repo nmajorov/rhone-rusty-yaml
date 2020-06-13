@@ -15,13 +15,16 @@ pub struct Project {
     pub version: String,
     pub language: String,
 
-    #[serde(rename = "interpreter-version",
-            skip_serializing_if ="Option::is_none")]
+    #[serde(
+        rename = "interpreter-version",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub interpreter_version: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contributors: Option<Vec<Contributor>>,
-    pub build_trigger: BuildTrigger,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub build_trigger: Option<BuildTrigger>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub scripts: Option<Vec<Scripts>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -71,8 +74,6 @@ pub struct Scripts {
 /// Read yaml file and return json as string
 #[pyfunction]
 fn get_json_from_yaml_file(path: String) -> PyResult<String> {
-    println!("try to parse file: {}", &path);
-
     let contents = fs::read_to_string(&path)?;
 
     let project: Project = serde_yaml::from_str(&contents).unwrap();
@@ -101,6 +102,17 @@ fn rhone_rusty_yaml(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 mod tests {
 
     use super::{BuildTrigger, Contributor, Notify, Project, Scripts};
+
+    // Helper function to check the trigger element in yaml
+    fn check_trigger(p: Project) -> bool {
+        match p.build_trigger {
+            Some(trigger) => match trigger {
+                BuildTrigger::Every(_str) => true,
+                BuildTrigger::None => false,
+            },
+            None => false,
+        }
+    }
 
     #[test]
     fn it_works() -> Result<(), serde_json::Error> {
@@ -136,7 +148,7 @@ mod tests {
             interpreter_version: Some(String::from("1.39.0")),
             contributors: Some(vec![contr1]),
             scripts: Some(vec![script1, script2]),
-            build_trigger: trigger,
+            build_trigger: Some(trigger),
             notify: Some(Notify {
                 failure: true,
                 success: true,
@@ -188,7 +200,8 @@ notify:
     }
 
     #[test]
-    fn parse_yaml_build_trigger_none() -> Result<(), serde_yaml::Error> {
+    fn build_trigger_none() -> Result<(), serde_yaml::Error> {
+        println!("**** start test build_trigger_none ****\n");
         let data = r#"
 ---
 apiVersion: build.rhone.io/v1
@@ -202,7 +215,37 @@ build_trigger: none
         println!("yaml: \n {}", data);
         let project: Project = serde_yaml::from_str(&data)?;
         assert_eq!(project.name, "simple-go");
-        //assert_eq!(project.build_trigger, BuildTrigger::None);
+
+        let trigger_result = check_trigger(project);
+        println!("triggerResult: \n {}", trigger_result);
+        assert_eq!(trigger_result, false);
+        Ok(())
+    }
+
+    #[test]
+    fn build_no_trigger() -> Result<(), serde_yaml::Error> {
+        let data = r#"
+---
+apiVersion: build.rhone.io/v1
+contributors:
+- email: nikolaj@majorov.biz
+  name: Nikolaj Majorov
+interpreter-version: 12.18-stretch
+language: node_js
+name: rhone-frontend
+version: 0.1.5
+
+"#;
+
+        println!("yaml: \n {}", data);
+        let project: Project = serde_yaml::from_str(&data)?;
+        assert_eq!(project.name, "rhone-frontend");
+        assert_eq!(project.language, "node_js");
+        let j = serde_json::to_string(&project).unwrap();
+        println!("json: \n {}", j);
+        let trigger_result = check_trigger(project);
+        println!("triggerResult: \n {}", trigger_result);
+        assert_eq!(trigger_result, false);
         Ok(())
     }
 
@@ -264,12 +307,6 @@ scripts:
         assert_eq!(project.name, "simple-project");
         assert_eq!(project.language, "scala");
         assert_eq!(project.interpreter_version, Some(String::from("2.11.4")));
-        fn check_trigger(p: Project) -> bool {
-            match p.build_trigger {
-                BuildTrigger::Every(_str) => true,
-                BuildTrigger::None => false,
-            }
-        }
 
         assert_eq!(check_trigger(project), true);
 

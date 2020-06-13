@@ -94,7 +94,7 @@ def read(fname):
 
 setup(
     name="rhone-rusty-yaml",
-    version="1.0.1",
+    version="1.0.2",
     author= "Nikolaj Majorov",
     author_email = "nikolaj@majorov.biz",
     description = ("parse rhone yaml files with rust in python"),
