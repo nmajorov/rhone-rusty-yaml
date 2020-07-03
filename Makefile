@@ -3,7 +3,7 @@ SHELL := /bin/bash
 
 ts := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-version := 1.0.1
+version := 1.0.3
 
 .PHONY: help
 help: ## This help message
@@ -53,4 +53,3 @@ quicktest: ## Run tests on already installed  module
 .PHONY: bench
 bench: ## Run benchmarks
 	pytest benchmarks
-

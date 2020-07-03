@@ -29,6 +29,9 @@ pub struct Project {
     pub scripts: Option<Vec<Scripts>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub notify: Option<Notify>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub go_import_path: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -149,6 +152,7 @@ mod tests {
             contributors: Some(vec![contr1]),
             scripts: Some(vec![script1, script2]),
             build_trigger: Some(trigger),
+            go_import_path: None,
             notify: Some(Notify {
                 failure: true,
                 success: true,
@@ -219,6 +223,33 @@ build_trigger: none
         let trigger_result = check_trigger(project);
         println!("triggerResult: \n {}", trigger_result);
         assert_eq!(trigger_result, false);
+        Ok(())
+    }
+
+    #[test]
+    fn test_go_import_path_not_none() -> Result<(), serde_yaml::Error> {
+        println!("**** test_go_import_path_not_none ****\n");
+        let data = r#"
+---
+apiVersion: build.rhone.io/v1
+name: simple-go
+version: v1.dev
+language: golang
+interpreter-version: 1.13.6
+go_import_path: bitbucket.org/kivotion/server
+"#;
+
+        println!("yaml: \n {}", data);
+        let project: Project = serde_yaml::from_str(&data)?;
+        assert_eq!(project.name, "simple-go");
+        assert_eq!(
+            project.go_import_path,
+            Some(String::from("bitbucket.org/kivotion/server"))
+        );
+        let trigger_result = check_trigger(project);
+        println!("triggerResult: \n {}", trigger_result);
+        assert_eq!(trigger_result, false);
+
         Ok(())
     }
 
