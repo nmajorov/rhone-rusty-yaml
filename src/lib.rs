@@ -1,86 +1,26 @@
-use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
+use pyo3::{exceptions, prelude::*, wrap_pyfunction};
+
 use std::fs;
+mod v1;
+mod v2;
+use v1::Project as ProjectV1;
 
-use serde::{Deserialize, Serialize};
-
-/// yaml repesentation of rhone  project
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Project {
-    #[serde(rename = "apiVersion")]
-    pub api_version: String,
-    pub name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-    pub version: String,
-    pub language: String,
-
-    #[serde(
-        rename = "interpreter-version",
-        skip_serializing_if = "Option::is_none"
-    )]
-    pub interpreter_version: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub contributors: Option<Vec<Contributor>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub build_trigger: Option<BuildTrigger>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub scripts: Option<Vec<Scripts>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub notify: Option<Notify>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub go_import_path: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Notify {
-    #[serde(rename = "success")]
-    pub success: bool,
-    #[serde(rename = "failure")]
-    pub failure: bool,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub enum BuildTrigger {
-    #[serde(rename = "every")]
-    Every(String),
-    #[serde(rename = "none")]
-    None,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Contributor {
-    pub name: String,
-    pub email: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct Scripts {
-    #[serde(rename = "preBuild")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub pre_build: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub build: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(rename = "postBuild")]
-    pub post_build: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(rename = "preSCM")]
-    pub pre_scm: Option<String>,
-}
+use v2::Project as ProjectV2;
 
 /// Read yaml file and return json as string
 #[pyfunction]
 fn get_json_from_yaml_file(path: String) -> PyResult<String> {
     let contents = fs::read_to_string(&path)?;
 
-    let project: Project = serde_yaml::from_str(&contents).unwrap();
+    let project: ProjectV1 = serde_yaml::from_str(&contents).unwrap();
 
+    /**
+        if project.api_version != "build.rhone.io/v1" {
+            return Err(PyErr::new::<exceptions::PyTypeError, _>(
+                "v1 don't supported in the library",
+            ));
+        }
+    **/
     let j = serde_json::to_string(&project).unwrap();
     Ok(j)
 }
@@ -88,7 +28,7 @@ fn get_json_from_yaml_file(path: String) -> PyResult<String> {
 /// Read yaml as string  and return json as string
 #[pyfunction]
 fn get_json_from_yaml_str(contents: String) -> PyResult<String> {
-    let project: Project = serde_yaml::from_str(&contents).unwrap();
+    let project: ProjectV1 = serde_yaml::from_str(&contents).unwrap();
 
     let j = serde_json::to_string(&project).unwrap();
     Ok(j)
@@ -167,6 +107,36 @@ mod tests {
 
         let j = serde_json::to_string(&project)?;
         println!("json: \n {}", j);
+
+        Ok(())
+    }
+
+    #[test]
+    fn parse_wrong_api_version() -> Result<(), serde_yaml::Error> {
+        let data = r#"
+---
+name: express-train
+apiVersion: build.rhone.io/v1
+description: some framework
+version: 2.1.3
+language: python
+interpreter-version: '3.8.8'
+contributors:
+- name: Nikolaj Majorov
+  email: nikolaj@majorov.biz
+- name: Oleg Mayer
+  email: oleg@majorov.biz
+build_trigger:
+    every: 5 minutes
+notify:
+    success: false
+    failure: true
+"#;
+
+        println!("yaml: \n {}", data);
+        let project: Project = serde_yaml::from_str(&data)?;
+        assert_eq!(project.name, "express-train");
+        assert_eq!(project.interpreter_version, Some(String::from("3.8.8")));
 
         Ok(())
     }

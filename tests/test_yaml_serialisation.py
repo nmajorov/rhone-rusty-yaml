@@ -94,5 +94,5 @@ def test_parst_yaml_pure_python(benchmark):
         return jsonStr
 
     LOGGER.info("get json: {}".format(result))
-    
+
     assert result is not None
