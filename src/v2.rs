@@ -7,10 +7,18 @@ pub struct Project {
     #[serde(rename = "apiVersion")]
     pub api_version: String,
     pub name: String,
+    pub version: String,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    pub version: String,
-    pub language: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
+
+    #[serde(
+        rename = "interpreter-version",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub interpreter_version: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub image: Option<String>,
@@ -59,10 +67,10 @@ pub struct Scripts {
     pub pre_build: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub pre_build_ansible: Option<String>,
+    pub pre_install: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub post_build_ansible: Option<String>,
+    pub post_install: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub build: Option<Vec<String>>,
@@ -71,7 +79,7 @@ pub struct Scripts {
     pub post_build: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub pre_scm: Option<Vec<String>>,
+    pub scm: Option<Vec<String>>,
 }
 
 #[cfg(test)]
@@ -86,8 +94,51 @@ mod tests {
 apiVersion: build.rhone.io/v2
 name: express-train
 version: 2.1.3
-image: "docker.io/library/python:3"
 language: python
+interpreter-version: 3
+"#;
+
+        println!("yaml: \n {}", data);
+        let project: Project = serde_yaml::from_str(&data)?;
+        println!("project v2 : \n {:?}", project);
+        //assert_eq!(project.name, "express-train");
+        assert_eq!(project.api_version, "build.rhone.io/v2");
+
+        Ok(())
+    }
+
+    #[test]
+    fn parse_image_scripts() -> Result<(), serde_yaml::Error> {
+        let data = r#"
+---
+apiVersion: build.rhone.io/v2
+name: express-train
+version: 2.1.3
+image: "registry.redhat.io/rhel8/python-38"
+env:
+  - FOO=foo
+  - BAR=bar
+  - FOO=bar
+  - BAR=foo
+scripts:
+  cms:
+    - git clone -l -s -n . ../copy
+    - cd ../copy
+    - git show-branch
+  pre_install:
+    - env
+    - podman version
+  pre_build:
+    - pip install ansible
+  build:
+    - python setup.py install
+    - pytest -v tests
+  post_build:
+    - ls
+    - ./scripts/call.py
+  post_install:
+     - ls
+     - ./script/delete_pod.sh
 
 "#;
 

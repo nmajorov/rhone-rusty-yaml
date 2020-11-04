@@ -4,7 +4,6 @@ use std::fs;
 mod v1;
 mod v2;
 use v1::Project as ProjectV1;
-
 use v2::Project as ProjectV2;
 
 /// Read yaml file and return json as string
