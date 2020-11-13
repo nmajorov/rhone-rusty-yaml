@@ -14,9 +14,11 @@ New proposal for the build:
       - "pip install ansible"
       - ""
       - ""
-        ansible:
+        pre_build_ansible:
           - ./ansible/playbook.yaml
 
+        post_build_ansible:
+          - ./ansible/
 
 
       - task: "check python version"

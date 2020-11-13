@@ -21,13 +21,19 @@ fn get_json_from_yaml_str(contents: String) -> PyResult<String> {
     //if contents.starts_with("build.rhone.io/v2") {
     //        let project: ProjectV2 = serde_yaml::from_str(&contents).unwrap();
     //}
-    let project: ProjectV1 = serde_yaml::from_str(&contents).unwrap();
-    if project.api_version == "build.rhone.io/v2" {
-        let project2: ProjectV2 = serde_yaml::from_str(&contents).unwrap();
-        json = serde_json::to_string(&project2).unwrap();
-    } else {
+    if contents.contains("build.rhone.io/v2") {
+        //println!("parsing project v2");
+        let project: ProjectV2 = serde_yaml::from_str(&contents).unwrap();
+        json=serde_json::to_string(&project).unwrap();
+
+    }else{
+        //println!("parsing project v1");
+        let project: ProjectV1 = serde_yaml::from_str(&contents).unwrap();
+
         json = serde_json::to_string(&project).unwrap();
     }
+    
+    
     Ok(json)
 }
 

@@ -41,32 +41,21 @@ def test_parse_yaml_file_with_rustV2(benchmark):
 def test_parse_yaml_string_with_rustV2(benchmark):
     yaml = """
 ---
-name: express-train
 apiVersion: build.rhone.io/v2
+name: express-train
 description: some framework
 version: 2.1.3
 language: python
 interpreter-version: '3.4'
-contributors:
-- name: Nikolaj Majorov
-  email: nikolaj@majorov.biz
-- name: Oleg Mayer
-  email: oleg@majorov.biz
 
-build_trigger:
-  every: 5 minutes
-
-notify:
-  success: false
-  failure: true
 
 scripts:
   pre_build:
     - python --version
-    - echo hallo
+    - echo "hallo"
 
   build:
-   - build.sh
+    - build.sh
 
   post_build:
     - stop.sh
@@ -78,8 +67,36 @@ scripts:
     strJson = benchmark(rhone_rusty_yaml.get_json_from_yaml_str, yaml)
     jsonStr = json.loads(strJson)
     LOGGER.info("dump json: {}".format(json.dumps(jsonStr, sort_keys=True, indent=4)))
-    LOGGER.info("interpreter-version: {}".format(jsonStr["interpreter-version"]))
     assert jsonStr is not None
-    assert (jsonStr['interpreter-version'] ==  "3.4")
+    assert (jsonStr['interpreter-version'] ==  '3.4')
     assert (jsonStr['name'] == "express-train")
-    assert (jsonStr['scripts'][0]['preBuild'] == "python --version")
+    assert (jsonStr['scripts']['pre_build'] == ["python --version","echo \"hallo\""])
+
+
+
+def test_parse_golang_project_with_rustV2(benchmark):
+    yaml = """
+---
+apiVersion: build.rhone.io/v2
+name: test-go-app
+language: golang
+image: "docker.io/library/golang:1.15-buster"
+go_import_path: "bitbucket.org/kivotion/server"
+env:
+  - FOO=foo
+  - BAR=bar
+"""
+
+
+    LOGGER.info("parse yaml string: {}".format(yaml))
+    strJson = benchmark(rhone_rusty_yaml.get_json_from_yaml_str, yaml)
+    jsonStr = json.loads(strJson)
+    LOGGER.info("dump json: {}".format(json.dumps(jsonStr, sort_keys=True, indent=4)))
+    assert jsonStr is not None
+    assert (jsonStr['language'] ==  'golang')
+    assert (jsonStr['image'] == "docker.io/library/golang:1.15-buster")
+    assert (jsonStr['go_import_path'] == "bitbucket.org/kivotion/server")
+    
+    assert (jsonStr['env'] == ["FOO=foo","BAR=bar"])
+
+

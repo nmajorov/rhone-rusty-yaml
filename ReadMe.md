@@ -37,3 +37,9 @@ https://developers.redhat.com/blog/2017/11/16/speed-python-using-rust/
 https://github.com/PyO3/setuptools-rust
 
 
+Create virtual env with system-site packages 
+
+		virtualenv --system-site-packages algo-env
+
+
+

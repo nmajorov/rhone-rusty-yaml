@@ -7,7 +7,9 @@ pub struct Project {
     #[serde(rename = "apiVersion")]
     pub api_version: String,
     pub name: String,
-    pub version: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -145,6 +147,33 @@ scripts:
         println!("yaml: \n {}", data);
         let project: Project = serde_yaml::from_str(&data)?;
         println!("project v2 : \n {:?}", project);
+        //assert_eq!(project.name, "express-train");
+        assert_eq!(project.api_version, "build.rhone.io/v2");
+
+        Ok(())
+    }
+
+    // parse golang project with scripts
+    #[test]
+    fn parse_golang_project() -> Result<(), serde_yaml::Error>{
+        let yaml=r#"
+apiVersion: build.rhone.io/v2
+name: kivotion-server-backend
+version: 1.0.0.dev0
+language: golang
+interpreter-version: 1.13.6
+go_import_path: bitbucket.org/kivotion/server
+scripts:
+    pre_build:
+      - make dep
+    build:
+      - make test
+"#;
+
+
+        println!("yaml: \n {}", yaml);
+        let project: Project = serde_yaml::from_str(&yaml)?;
+        println!("project v2 golang with gopath : \n {:?}", project);
         //assert_eq!(project.name, "express-train");
         assert_eq!(project.api_version, "build.rhone.io/v2");
 

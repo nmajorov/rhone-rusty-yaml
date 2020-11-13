@@ -43,11 +43,11 @@ cargo-test: ## Run cargo tests only
 	cargo test -- --nocapture
 
 .PHONY: test
-test: cargo-test install quicktest ## Intall  module and run tests
+test: cargo-test install pytest ## Intall  module and run tests
 
-.PHONY: quicktest
-quicktest: ## Run tests on already installed  module
-	pytest -v tests
+.PHONY: pytest
+pytest: ## Run python tests on already installed  module
+	python setup.py test
 
 
 .PHONY: bench
