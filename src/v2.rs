@@ -39,6 +39,9 @@ pub struct Project {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub env: Option<Vec<String>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub podman_run_params: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -155,8 +158,8 @@ scripts:
 
     // parse golang project with scripts
     #[test]
-    fn parse_golang_project() -> Result<(), serde_yaml::Error>{
-        let yaml=r#"
+    fn parse_golang_project() -> Result<(), serde_yaml::Error> {
+        let yaml = r#"
 apiVersion: build.rhone.io/v2
 name: kivotion-server-backend
 version: 1.0.0.dev0
@@ -169,7 +172,6 @@ scripts:
     build:
       - make test
 "#;
-
 
         println!("yaml: \n {}", yaml);
         let project: Project = serde_yaml::from_str(&yaml)?;

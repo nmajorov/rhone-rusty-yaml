@@ -82,6 +82,8 @@ name: test-go-app
 language: golang
 image: "docker.io/library/golang:1.15-buster"
 go_import_path: "bitbucket.org/kivotion/server"
+podman_run_params:
+    - add-host=niko-computer:10.0.0.1
 env:
   - FOO=foo
   - BAR=bar
@@ -98,5 +100,8 @@ env:
     assert (jsonStr['go_import_path'] == "bitbucket.org/kivotion/server")
     
     assert (jsonStr['env'] == ["FOO=foo","BAR=bar"])
+
+    assert (jsonStr['podman_run_params'] == ["add-host=niko-computer:10.0.0.1"])
+
 
 
