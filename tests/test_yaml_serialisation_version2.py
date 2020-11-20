@@ -82,8 +82,8 @@ name: test-go-app
 language: golang
 image: "docker.io/library/golang:1.15-buster"
 go_import_path: "bitbucket.org/kivotion/server"
-podman_run_params:
-    - add-host=niko-computer:10.0.0.1
+build_podman_params:
+    - add-host="{{ rhone_server_hostname }}:{{rhone_server_ip}}"
 env:
   - FOO=foo
   - BAR=bar
@@ -95,13 +95,11 @@ env:
     jsonStr = json.loads(strJson)
     LOGGER.info("dump json: {}".format(json.dumps(jsonStr, sort_keys=True, indent=4)))
     assert jsonStr is not None
-    assert (jsonStr['language'] ==  'golang')
-    assert (jsonStr['image'] == "docker.io/library/golang:1.15-buster")
-    assert (jsonStr['go_import_path'] == "bitbucket.org/kivotion/server")
-    
+    assert jsonStr['language'] == 'golang'
+    assert jsonStr['image'] == "docker.io/library/golang:1.15-buster"
+    assert jsonStr['go_import_path'] == "bitbucket.org/kivotion/server"
+
     assert (jsonStr['env'] == ["FOO=foo","BAR=bar"])
 
-    assert (jsonStr['podman_run_params'] == ["add-host=niko-computer:10.0.0.1"])
-
-
-
+    assert (jsonStr['build_podman_params'] ==
+            ['add-host="{{ rhone_server_hostname }}:{{rhone_server_ip}}"'])

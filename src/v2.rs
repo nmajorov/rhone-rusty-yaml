@@ -41,7 +41,7 @@ pub struct Project {
     pub env: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub podman_run_params: Option<Vec<String>>,
+    pub build_podman_params: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
