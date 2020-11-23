@@ -25,9 +25,9 @@ build-release: build ## Build  module in release mode
 install: dev-packages ## Install  module into current virtualenv
 	#poetry run maturin develop --release
 
-#.PHONY: publish
-#publish: ## Publish crate on Pypi
-#	poetry run maturin publish
+.PHONY: publish
+publish: ## Publish wheel on my server
+	scp ./dist/*.whl nmajorov@majorov.biz:/home/nmajorov/dwn
 
 .PHONY: clean
 clean: ## Clean up build artifacts
